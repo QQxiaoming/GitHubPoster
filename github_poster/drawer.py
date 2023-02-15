@@ -216,17 +216,18 @@ class Drawer:
                     if len(self.poster.type_list) == 1
                     else self._gen_day_boxes
                 )
-                for rect in gen_box_func(
-                    dr,
-                    rect_x,
-                    rect_y,
-                    date_title,
-                    day_tracks,
-                    self.poster.with_animation,
-                    key_times,
-                    animate_index,
-                ):
-                    dr.add(rect)
+                if int(github_rect_day.year) == year:
+                    for rect in gen_box_func(
+                        dr,
+                        rect_x,
+                        rect_y,
+                        date_title,
+                        day_tracks,
+                        self.poster.with_animation,
+                        key_times,
+                        animate_index,
+                    ):
+                        dr.add(rect)
                 github_rect_day += datetime.timedelta(1)
             rect_x += 3.5
         offset.y += 3.5 * 9 + self.year_size + 1.5

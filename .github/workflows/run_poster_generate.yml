@@ -3,14 +3,16 @@ name: Run Poster Generate
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * *"
+    - cron: "0 19 * * *"
 
 env:
   # please change to your own config.
   # this actions generate only this year
   # If you fork this please change the type to yours below
-  TYPE: "strava, github, forest, pass" # support strava/gpx/ns/cichang/shanbay/duolingo/issue/leetcode/twitter/github/gitlab/kindle/bilibili/wakatime/dota2/forest, Please change the 'pass' it to your own separated by commas
-  ME: yihong0618
+  TYPE: "duolingo" # support strava/gpx/ns/cichang/shanbay/duolingo/issue/leetcode/twitter/github/gitlab/kindle/bilibili/wakatime/dota2/forest, Please change the 'pass' it to your own separated by commas
+  ME: Quard
+  GITHUB_NAME: xiaoming
+  GITHUB_EMAIL: 2014500726@smail.xtu.edu.cn
 
 jobs:
   sync:
@@ -19,6 +21,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: 'QQxiaoming/QQxiaoming'
+          path: QQxiaoming
+          token: ${{ secrets.GH_PAT }}
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -60,7 +70,7 @@ jobs:
       - name: Run sync duolingo script
         if: contains(env.TYPE, 'duolingo')
         run: |
-          python -m github_poster duolingo --duolingo_user_name ${{ secrets.DUOLINGO_USER_NAME }} --duolingo_password ${{ secrets.DUOLINGO_PASSWORD }} --me ${{ env.ME }}
+          python -m github_poster duolingo  --year 2022-2023 --duolingo_user_name ${{ secrets.DUOLINGO_USER_NAME }} --duolingo_password ${{ secrets.DUOLINGO_PASSWORD }} --me ${{ env.ME }}
 
       - name: Run sync cichang script
         if: contains(env.TYPE, 'cichang')
@@ -133,15 +143,15 @@ jobs:
         run: |
           python3 -m github_poster multiple --types "github, twitter" --github_user_name ${{ secrets.G_USER_NAME }} --twitter_user_name ${{ secrets.TWITTER_USER_NAME }} --year 2019-$(date +"%Y") 
 
-      - name: Mv svg files to examples
-        # only for me to show
-        if: github.repository_owner == 'yihong0618'
-        run: mv OUT_FOLDER/*.svg examples/ && mv OUT_FOLDER/*.stl examples/
+      - name: release
+        run: |
+          mv OUT_FOLDER/*.svg QQxiaoming/
 
       - name: Push new postger
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          cd QQxiaoming
+          git config --local user.email "${{ env.GITHUB_EMAIL }}"
+          git config --local user.name "${{ env.GITHUB_NAME }}"
           git add .
-          git commit -m 'update new poster' || echo "nothing to commit"
+          git commit -m 'update new poster' --author="github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>" || echo "nothing to commit"
           git push || echo "nothing to push"
